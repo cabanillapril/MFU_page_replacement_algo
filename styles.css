@@ -175,7 +175,8 @@ tr:hover td {
 
 /* Frequency blocks*/
 #frequencyLabel,
-#hitMissLabel {
+#hitMissLabel,
+#totalStringLabel {
     font-size: 18px;
     font-weight: 600;
     margin: 25px 0 12px;

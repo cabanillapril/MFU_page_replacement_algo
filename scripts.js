@@ -39,10 +39,9 @@ function simulateMFU() {
     const framesCount = parseInt(document.getElementById("framesInput").value);
 
     // Convert pages to TRIMMED STRINGS instead of numbers (fixes NaN)
-    const pages = document.getElementById("pagesInput").value
-        .split(",")
-        .map(p => p.trim())
-        .filter(p => p !== "");
+    const rawInput = document.getElementById("pagesInput").value.trim();
+    const pages = rawInput.split(",").map(p => p.trim().toUpperCase());
+
 
     let freq = {};
     let hit = 0;
@@ -121,6 +120,20 @@ function simulateMFU() {
                 }
             }, 25);
 
+
+            // Show total string length
+                const totalStringContainer = document.getElementById("totalStringSummary");
+                totalStringContainer.innerHTML = "";
+
+                const totalStringDiv = document.createElement("div");
+                totalStringDiv.className = "counter";
+                totalStringDiv.textContent = `Total String Length = ${pages.length}`;
+                totalStringContainer.appendChild(totalStringDiv);
+
+                // Show label animation
+                document.getElementById("totalStringLabel").classList.add("fade-in-label");
+
+
             return;
         }
 
@@ -145,14 +158,15 @@ function simulateMFU() {
                 let maxFreq = -1;
                 let candidates = [];
 
-                framesArr.forEach((f, idx) => {
-                    if (freq[f] > maxFreq) {
-                        maxFreq = freq[f];
-                        candidates = [idx];
-                    } else if (freq[f] === maxFreq) {
-                        candidates.push(idx);
-                    }
-                });
+             framesArr.forEach((f, idx) => {
+                if ((freq[f] || 0) > maxFreq) {
+                    maxFreq = freq[f];
+                    candidates = [idx];
+                } 
+                else if ((freq[f] || 0) === maxFreq) {
+                    candidates.push(idx);
+                }
+            });
 
                 let toReplace;
 
