@@ -1,0 +1,91 @@
+<!-- 
+Project: MFU Page Replacement Algorithm Implementation
+
+Group 6:
+Barcellano, Lhendie Kaesser F.
+Cabais, Jefren Paul A.
+Cabanilla, April Anne C.
+Pamati-an, Jade Carlo B.
+Redolozo, Miguel Andrew T.
+Villanueva, Jane Nicole P. 
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MFU Page Replacement Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Startup intro screen -->
+    <div id="startupIntro" class="startup-intro">
+        <div class="startup-title">MFU Page Replacement Algorithm</div>
+        <div class="startup-subtitle">Loading memory system...</div>
+
+        <div class="drive-animation">
+            <div class="drive-body"></div>
+            <div class="drive-light"></div>
+        </div>
+    </div>
+
+    <!-- Main application content -->
+    <div id="mainContent">
+
+        <h1>MFU Page Replacement Algorithm</h1>
+
+        <!-- Input section -->
+        <div class="input-section">
+            <label>Number of Frames:
+                <input type="number" id="framesInput" min="1" value="4">
+            </label>
+
+            <label>Page Reference String:
+                <input type="text" id="pagesInput" value="A,B,C,D">
+            </label>
+
+            <button onclick="simulateMFU()">Simulate</button>
+        </div>
+
+        <!-- Intro memory visual -->
+        <div id="intro" class="intro-container">
+            <div class="intro-subtitle">Visualize how pages are loaded and replaced in memory</div>
+
+            <div class="memory-module-large">
+                <div class="led"></div>
+
+                <div class="data-bus">
+                    <div class="data-block"></div>
+                    <div class="data-block"></div>
+                    <div class="data-block"></div>
+                    <div class="data-block"></div>
+                    <div class="data-block"></div>
+                    <div class="data-block"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result table -->
+        <div class="table-container">
+            <div id="result"></div>
+        </div>
+
+        <!-- Frequency summary -->
+        <div id="frequencyLabel" class="freq-label">Page Frequencies</div>
+        <div id="frequencySummary"></div>
+
+        <!-- Hit and miss summary -->
+        <div id="hitMissLabel" class="freq-label">Total Hits & Misses</div>
+        <div id="hitMissSummary"></div>
+
+    </div> <!-- End main content -->
+
+    <script src="scripts.js"></script>
+</body>
+
+</html>

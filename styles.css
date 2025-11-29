@@ -1,0 +1,518 @@
+/* 
+Project: MFU Page Replacement Algorithm Implementation
+
+Group 6:
+Barcellano, Lhendie Kaesser F.
+Cabais, Jefren Paul A.
+Cabanilla, April Anne C.
+Pamati-an, Jade Carlo B.
+Redolozo, Miguel Andrew T.
+Villanueva, Jane Nicole P. 
+*/
+
+
+/* Body and headings */
+body {
+    font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa, #e4ebf5);
+    text-align: center;
+    padding: 20px;
+    color: #2c3e50;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #137ae0;
+}
+
+/* Input section */
+.input-section {
+    margin-bottom: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+input {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #b0b8c1;
+    font-size: 14px;
+    min-width: 160px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #6c5ce7;
+    box-shadow: 0 0 6px rgba(108, 92, 231, 0.3);
+}
+
+button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px) scale(1.05);
+    background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+    box-shadow: 0 6px 12px rgba(108, 92, 231, 0.3);
+}
+
+/* Table container */
+.table-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 25px 0;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 0 auto;
+    min-width: max-content;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+th,
+td {
+    padding: 14px 18px;
+    border: 1px solid #e0e4eb;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+th {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    color: #fff;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+tr:nth-child(even) td {
+    background: #f7f9fc;
+}
+
+tr:hover td {
+    background: rgba(108, 92, 231, 0.08);
+}
+
+/* Hit/miss row styling*/
+#indicatorRow td {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* .page-hit {
+    background-color: #2ecc71;
+    color: #fff;
+    font-weight: bold;
+    animation: pop 0.4s ease forwards;
+    box-shadow: 0 0 8px #2ecc71;
+}
+
+.page-miss {
+    background-color: #e74c3c;
+    color: #fff;
+    font-weight: bold;
+    animation: pop 0.4s ease forwards;
+    box-shadow: 0 0 8px #e74c3c;
+}
+ */
+
+@keyframes pop {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.3);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Hide labels initially */
+#frequencyLabel,
+#hitMissSummaryLabel {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+/* Labels hidden initially, keep spacing/colors/gap */
+#frequencyLabel,
+#hitMissLabel {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 25px 0 12px;
+    color: #4e5d78;
+    text-align: center;
+    opacity: 0;
+    /* hidden initially */
+}
+
+/* Frequency blocks*/
+#frequencyLabel,
+#hitMissLabel {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 25px 0 12px;
+    color: #4e5d78;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards;
+}
+
+#frequencySummary,
+#hitMissSummary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.freq-block {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #5b8ad1, #01057e);
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    transform: translateY(-60px) scale(0.9);
+    animation: drop 0.7s ease forwards;
+    position: relative;
+}
+
+.freq-block span {
+    font-size: 12px;
+    margin-top: 4px;
+    color: #f0f0f0;
+}
+
+/* Counter animation */
+#hitMissSummary .counter {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInCounter 0.7s forwards;
+}
+
+@keyframes fadeInCounter {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Drop animation */
+@keyframes drop {
+    0% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateY(10px);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Generic fadeIn for labels */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+
+    table th,
+    table td {
+        padding: 10px;
+        font-size: 12px;
+        min-width: 40px;
+    }
+
+    .freq-block {
+        width: 55px;
+        height: 55px;
+        font-size: 14px;
+    }
+
+    .counter {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .input-section {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    button,
+    input {
+        width: 90%;
+    }
+
+    .freq-block {
+        width: 50px;
+        height: 50px;
+        font-size: 12px;
+    }
+}
+
+.intro-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 50px 0;
+}
+
+.intro-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #6c5ce7;
+    margin-bottom: 10px;
+}
+
+.intro-subtitle {
+    font-size: 1rem;
+    color: #4e5d78;
+    margin-bottom: 40px;
+}
+
+/* Large memory module */
+.memory-module-large {
+    width: 400px;
+    height: 120px;
+    background: linear-gradient(to right, #444, #666);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Glowing LED */
+.memory-module-large .led {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #2ecc71;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    box-shadow: 0 0 20px #2ecc71, 0 0 40px #27ae60;
+    animation: ledGlow 1.2s infinite alternate;
+}
+
+/* Data bus flow */
+.data-bus {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.data-bus .data-block {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(to top, #6c5ce7, #a29bfe);
+    border-radius: 6px;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: flowBlock 1.2s ease-in-out infinite;
+}
+
+.data-bus .data-block:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.data-bus .data-block:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.data-bus .data-block:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+.data-bus .data-block:nth-child(4) {
+    animation-delay: 0.6s;
+}
+
+.data-bus .data-block:nth-child(5) {
+    animation-delay: 0.8s;
+}
+
+.data-bus .data-block:nth-child(6) {
+    animation-delay: 1s;
+}
+
+/* LED glow animation */
+@keyframes ledGlow {
+    0% {
+        box-shadow: 0 0 10px #2ecc71, 0 0 20px #27ae60;
+    }
+
+    50% {
+        box-shadow: 0 0 20px #2ecc71, 0 0 40px #27ae60;
+    }
+
+    100% {
+        box-shadow: 0 0 10px #2ecc71, 0 0 20px #27ae60;
+    }
+}
+
+/* Data block flow animation */
+@keyframes flowBlock {
+    0% {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+}
+
+/* Startup inro page */
+.startup-intro {
+    position: fixed;
+    inset: 0;
+    background: #050505;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.startup-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: #1e90ff;
+    margin-bottom: 10px;
+}
+
+.startup-subtitle {
+    font-size: 18px;
+    color: #7ab8ff;
+    margin-bottom: 40px;
+}
+
+/* Hard drive animation */
+.drive-animation {
+    position: relative;
+    width: 160px;
+    height: 100px;
+}
+
+.drive-body {
+    width: 100%;
+    height: 100%;
+    background: #111;
+    border: 3px solid #1e90ff;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #1e90ff55;
+    animation: drivePulse 1.8s infinite ease-in-out;
+}
+
+.drive-light {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #1e90ff;
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px #1e90ff;
+    animation: driveBlink 0.6s infinite alternate;
+}
+
+@keyframes drivePulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 12px #1e90ff44;
+    }
+
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 0 22px #1e90ffaa;
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 12px #1e90ff44;
+    }
+}
+
+@keyframes driveBlink {
+    0% {
+        background: #0b4db8;
+        box-shadow: 0 0 5px #0b4db8;
+    }
+
+    100% {
+        background: #1e90ff;
+        box-shadow: 0 0 20px #1e90ff;
+    }
+}
